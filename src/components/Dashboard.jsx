@@ -19,87 +19,65 @@ const Dashboard = ({ onBack }) => {
 
   const tabs = [
     { id: 'upload', label: 'Data Input', icon: Upload },
-    { id: 'visualize', label: 'Visualizations', icon: Play },
-    { id: 'planets', label: 'Exoplanets', icon: Search },
-    { id: 'explain', label: 'AI Insights', icon: Filter }
+    { id: 'visualize', label: 'Results', icon: Play }
   ];
 
   const handleAnalysis = async (data) => {
     setIsAnalyzing(true);
-    // Simulate API call
+    
+    // Simulate API call with mock data for now
     setTimeout(() => {
+      // Mock ML model result with 5 probability values
+      const mockProbabilities = [0.72, 0.45, 0.83, 0.61, 0.38];
+      const overallProbability = mockProbabilities.reduce((sum, prob) => sum + prob, 0) / 5;
+      const isPlanet = overallProbability > 0.5;
+      
       setAnalysisData({
-        planets: [
-          {
-            id: 1,
-            name: 'Kepler-442b',
-            radius: 1.34,
-            orbitalPeriod: 112.3,
-            confidence: 0.94,
-            habitableZone: true,
-            starType: 'K-dwarf',
-            temperature: 233,
-            distance: 1206
-          },
-          {
-            id: 2,
-            name: 'TOI-715b',
-            radius: 1.55,
-            orbitalPeriod: 19.3,
-            confidence: 0.87,
-            habitableZone: false,
-            starType: 'M-dwarf',
-            temperature: 347,
-            distance: 137
-          },
-          {
-            id: 3,
-            name: 'K2-18b',
-            radius: 2.23,
-            orbitalPeriod: 33.0,
-            confidence: 0.91,
-            habitableZone: true,
-            starType: 'M-dwarf',
-            temperature: 279,
-            distance: 124
-          }
-        ],
-        charts: {
-          scatterData: {
-            datasets: [{
-              label: 'Detected Exoplanets',
-              data: [
-                { x: 112.3, y: 1.34 },
-                { x: 19.3, y: 1.55 },
-                { x: 33.0, y: 2.23 }
-              ],
-              backgroundColor: 'rgba(100, 255, 218, 0.6)',
-              borderColor: 'rgba(100, 255, 218, 1)',
-            }]
-          },
-          confidenceData: {
-            labels: ['Kepler-442b', 'TOI-715b', 'K2-18b'],
-            datasets: [{
-              label: 'Detection Confidence',
-              data: [94, 87, 91],
-              backgroundColor: [
-                'rgba(100, 255, 218, 0.8)',
-                'rgba(138, 43, 226, 0.8)',
-                'rgba(30, 144, 255, 0.8)'
-              ]
-            }]
-          }
-        },
-        featureImportance: [
-          { feature: 'Transit Depth', importance: 0.35 },
-          { feature: 'Orbital Period', importance: 0.28 },
-          { feature: 'Transit Duration', importance: 0.22 },
-          { feature: 'Stellar Magnitude', importance: 0.15 }
-        ]
+        probabilities: mockProbabilities,
+        overallProbability,
+        isPlanet,
+        verdict: isPlanet ? 'This exoplanet is likely a Planet ✅' : 'This exoplanet is NOT a Planet ❌',
+        resultSummary: isPlanet ? 'Result: Yes 🌍' : 'Result: No 🚫'
       });
+      
       setIsAnalyzing(false);
       setActiveTab('visualize');
     }, 3000);
+    
+    /* TODO: Replace with real API call when backend is ready
+    try {
+      const formData = new FormData();
+      if (data.file) {
+        formData.append('file', data.file);
+      } else if (data.dataset) {
+        formData.append('dataset', data.dataset);
+      }
+
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      
+      const overallProbability = result.probabilities.reduce((sum, prob) => sum + prob, 0) / 5;
+      const isPlanet = overallProbability > 0.5;
+      
+      setAnalysisData({
+        probabilities: result.probabilities,
+        overallProbability,
+        isPlanet,
+        verdict: isPlanet ? 'This exoplanet is likely a Planet ✅' : 'This exoplanet is NOT a Planet ❌',
+        resultSummary: isPlanet ? 'Result: Yes 🌍' : 'Result: No 🚫'
+      });
+      
+      setIsAnalyzing(false);
+      setActiveTab('visualize');
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      setIsAnalyzing(false);
+    }
+    */
   };
 
   return (
@@ -158,16 +136,6 @@ const Dashboard = ({ onBack }) => {
           )}
           {activeTab === 'visualize' && analysisData && (
             <VisualizationPanels data={analysisData} />
-          )}
-          {activeTab === 'planets' && analysisData && (
-            <ExoplanetCards 
-              planets={analysisData.planets} 
-              filters={filters}
-              onFiltersChange={setFilters}
-            />
-          )}
-          {activeTab === 'explain' && analysisData && (
-            <ExplainabilitySection data={analysisData.featureImportance} />
           )}
         </motion.div>
       </div>
