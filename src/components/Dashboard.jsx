@@ -1,21 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, Play, Filter, Search, ArrowLeft } from 'lucide-react';
+import { Upload, Play, ArrowLeft } from 'lucide-react';
 import DataUpload from './DataUpload';
 import VisualizationPanels from './VisualizationPanels';
-import ExoplanetCards from './ExoplanetCards';
-import ExplainabilitySection from './ExplainabilitySection';
 
 const Dashboard = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState('upload');
   const [analysisData, setAnalysisData] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [filters, setFilters] = useState({
-    minConfidence: 0,
-    maxOrbitalPeriod: 1000,
-    habitableZone: false,
-    starType: 'all'
-  });
 
   const tabs = [
     { id: 'upload', label: 'Data Input', icon: Upload },
@@ -25,42 +17,23 @@ const Dashboard = ({ onBack }) => {
   const handleAnalysis = async (data) => {
     setIsAnalyzing(true);
     
-    // Simulate API call with mock data for now
-    setTimeout(() => {
-      // Mock ML model result with 5 probability values
-      const mockProbabilities = [0.72, 0.45, 0.83, 0.61, 0.38];
-      const overallProbability = mockProbabilities.reduce((sum, prob) => sum + prob, 0) / 5;
-      const isPlanet = overallProbability > 0.5;
-      
-      setAnalysisData({
-        probabilities: mockProbabilities,
-        overallProbability,
-        isPlanet,
-        verdict: isPlanet ? 'This exoplanet is likely a Planet ✅' : 'This exoplanet is NOT a Planet ❌',
-        resultSummary: isPlanet ? 'Result: Yes 🌍' : 'Result: No 🚫'
-      });
-      
-      setIsAnalyzing(false);
-      setActiveTab('visualize');
-    }, 3000);
-    
-    /* TODO: Replace with real API call when backend is ready
     try {
       const formData = new FormData();
       if (data.file) {
         formData.append('file', data.file);
-      } else if (data.dataset) {
-        formData.append('dataset', data.dataset);
+      }
+      if (data.model) {
+        formData.append('model', data.model);
       }
 
-      const response = await fetch('/api/analyze', {
+      const response = await fetch('http://localhost:5000/api/analyze', {
         method: 'POST',
         body: formData
       });
       
       const result = await response.json();
       
-      const overallProbability = result.probabilities.reduce((sum, prob) => sum + prob, 0) / 5;
+      const overallProbability = result.probabilities.reduce((sum, prob) => sum + prob, 0) / 7;
       const isPlanet = overallProbability > 0.5;
       
       setAnalysisData({
@@ -68,16 +41,18 @@ const Dashboard = ({ onBack }) => {
         overallProbability,
         isPlanet,
         verdict: isPlanet ? 'This exoplanet is likely a Planet ✅' : 'This exoplanet is NOT a Planet ❌',
-        resultSummary: isPlanet ? 'Result: Yes 🌍' : 'Result: No 🚫'
+        resultSummary: isPlanet ? 'Result: Yes 🌍' : 'Result: No 🚫',
+        modelType: data.model,
+        mlResults: result.mlResults
       });
       
       setIsAnalyzing(false);
       setActiveTab('visualize');
     } catch (error) {
       console.error('Analysis failed:', error);
+      alert('Analysis failed. Make sure the Python server is running on port 5000.');
       setIsAnalyzing(false);
     }
-    */
   };
 
   return (

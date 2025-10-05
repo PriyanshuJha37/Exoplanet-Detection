@@ -6,10 +6,9 @@ const DataUpload = ({ onAnalysis, isAnalyzing }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedDataset, setSelectedDataset] = useState('');
 
-  const sampleDatasets = [
-    { id: 'kepler', name: 'Kepler Mission Data', description: 'Light curves from Kepler space telescope' },
-    { id: 'tess', name: 'TESS Survey Data', description: 'Transiting Exoplanet Survey Satellite data' },
-    { id: 'k2', name: 'K2 Campaign Data', description: 'Extended Kepler mission observations' }
+  const modelOptions = [
+    { id: 'cnn', name: 'CNN Methods', description: 'Convolutional Neural Network for exoplanet detection' },
+    { id: 'ml', name: 'ML Techniques', description: 'Machine Learning classification algorithms' }
   ];
 
   const handleFileUpload = (event) => {
@@ -19,7 +18,7 @@ const DataUpload = ({ onAnalysis, isAnalyzing }) => {
 
   const handleAnalysis = () => {
     if (selectedFile || selectedDataset) {
-      onAnalysis({ file: selectedFile, dataset: selectedDataset });
+      onAnalysis({ file: selectedFile, model: selectedDataset });
     }
   };
 
@@ -100,11 +99,11 @@ const DataUpload = ({ onAnalysis, isAnalyzing }) => {
       >
         <div className="flex items-center gap-3 mb-6">
           <Database className="w-6 h-6 text-space-glow" />
-          <h3 className="text-2xl font-orbitron font-bold text-white">Sample Datasets</h3>
+          <h3 className="text-2xl font-orbitron font-bold text-white">Select Model</h3>
         </div>
         
         <div className="space-y-4">
-          {sampleDatasets.map((dataset) => (
+          {modelOptions.map((dataset) => (
             <motion.div
               key={dataset.id}
               className={`p-4 rounded-lg border cursor-pointer transition-all ${
@@ -130,14 +129,14 @@ const DataUpload = ({ onAnalysis, isAnalyzing }) => {
       >
         <motion.button
           onClick={handleAnalysis}
-          disabled={!selectedFile && !selectedDataset}
+          disabled={!selectedFile || !selectedDataset}
           className={`px-8 py-4 rounded-full font-bold text-lg transition-all ${
-            selectedFile || selectedDataset
+            selectedFile && selectedDataset
               ? 'glow-button text-black hover:scale-105'
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}
-          whileHover={selectedFile || selectedDataset ? { scale: 1.05 } : {}}
-          whileTap={selectedFile || selectedDataset ? { scale: 0.95 } : {}}
+          whileHover={selectedFile && selectedDataset ? { scale: 1.05 } : {}}
+          whileTap={selectedFile && selectedDataset ? { scale: 0.95 } : {}}
         >
           Run AI Analysis
         </motion.button>
